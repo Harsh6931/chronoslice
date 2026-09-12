@@ -19,19 +19,24 @@ int main()
     int code_2xx = 0;
     int code_4xx = 0;
     int code_5xx = 0;
+    long long total_bandwith=0;
     while (getline(file, line))
     {
-        int count = 9;
+        int count = 0;
 
-        string statuscode;
+        string token;
         stringstream ss(line);
 
-        while (ss >> statuscode && count--)
+        while (ss >> token && count<=10)
         {
-            if (count == 0)
+            if(count==9)
+            {
+                total_bandwith += stoll(token);
+            }
+            else if (count == 8)
             {
                 int status;
-                status = stoi(statuscode);
+                status = stoi(token);
                 if (status >= 200 && status <= 299)
                 {
                     code_2xx++;
@@ -45,11 +50,13 @@ int main()
                     code_5xx++;
                 }
             }
+            count++;
         }
     }
     cout << "2xx: " << code_2xx << endl;
     cout << "4xx: " << code_4xx << endl;
     cout << "5xx: " << code_5xx << endl;
+    cout << "Total Bandwidth: " << total_bandwith << endl;
 
     return 0;
 }

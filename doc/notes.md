@@ -104,3 +104,27 @@ int main()
 # 1st actual step of log analysis
 
 File → read lines → parse → extract status → categorize → count
+
+
+# dont declare a variable each time, use a accumulator
+
+Imagine a 1 GB log containing millions of requests.
+
+We could do:
+
+request 1 → 5321 → add to total
+request 2 → 4210 → add to total
+request 3 → 1200 → add to total
+...
+
+We only need:
+
+long long totalBytes = 0;
+
+and repeatedly:
+
+totalBytes += bytes;
+
+This is called an accumulator.
+
+You've probably used this idea in LeetCode, but here we're applying it to a continuous stream of real data.
