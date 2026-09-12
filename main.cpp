@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -20,6 +21,8 @@ int main()
     int code_4xx = 0;
     int code_5xx = 0;
     long long total_bandwith=0;
+    //store latency
+    vector<int> latency;
     while (getline(file, line))
     {
         int count = 0;
@@ -50,6 +53,10 @@ int main()
                     code_5xx++;
                 }
             }
+            else if(count==10)
+            {
+                latency.push_back(stoi(token));
+            }
             count++;
         }
     }
@@ -57,6 +64,11 @@ int main()
     cout << "4xx: " << code_4xx << endl;
     cout << "5xx: " << code_5xx << endl;
     cout << "Total Bandwidth: " << total_bandwith << endl;
+    cout<<"LATENCY: ";
+    for(int i=0;i<latency.size();i++)
+    {
+        cout << latency[i] <<" ";
+    }
 
     return 0;
 }
