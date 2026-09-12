@@ -100,3 +100,7 @@ int main()
 
     return 0;
 }
+
+# 1st actual step of log analysis
+
+File → read lines → parse → extract status → categorize → count
