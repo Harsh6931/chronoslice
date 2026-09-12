@@ -7,39 +7,46 @@
 #include <cmath>
 
 using namespace std;
-void updateStastics(int &status,int &latency,long long &bandwidth,int &code_2xx,int &code_4xx,int &code_5xx,long long &total_bandwith,vector<int> &latencies){
-    if(status>=200 && status<300){
+
+struct logEntry {
+    int status;
+    long long bandwidth;
+    int latency;
+
+};
+void updateStastics(logEntry &entry,int &code_2xx,int &code_4xx,int &code_5xx,long long &total_bandwith,vector<int> &latencies){
+    if(entry.status>=200 && entry.status<300){
         code_2xx++;
     }
-    else if(status>=400 && status<500){
+    else if(entry.status>=400 && entry.status<500){
         code_4xx++;
     }
-    else if(status>=500 && status<600){
+    else if(entry.status>=500 && entry.status<600){
         code_5xx++;
     }
-    total_bandwith+=bandwidth;
-    latencies.push_back(latency);
+    total_bandwith+=entry.bandwidth;
+    latencies.push_back(entry.latency);
 
 }
 // using const as string line cant change
-void parseLine(const string &line,int &status,int &latency,long long &bandwidth){
+logEntry parseLine(const string &line){
     stringstream ss(line);
     string token;
     int count=0;
+    logEntry entry;
     while(ss >> token){
         if(count==8){
-            status=stoi(token);
+            entry.status=stoi(token);
         }
         else if(count==9){
-            bandwidth=stoll(token);  //stoll as long long
+            entry.bandwidth=stoll(token);  //stoll as long long
         }
         else if(count==10){
-            latency=stoi(token);
+            entry.latency=stoi(token);
         }
         count++;
-
-
     }
+    return entry;
 }
 
 int main()
@@ -59,12 +66,10 @@ int main()
     //store latency
     vector<int> latencies;
     while (getline(file, line)){
-        int status;
-        int latency;
-        long long bandwidth;
-        parseLine(line,status,latency,bandwidth);
+
+        logEntry entry = parseLine(line);
         
-        updateStastics(status,latency,bandwidth,code_2xx,code_4xx,code_5xx,total_bandwith,latencies);
+        updateStastics(entry,code_2xx,code_4xx,code_5xx,total_bandwith,latencies);
     }
     sort(latencies.begin(),latencies.end());
     cout << "2xx: " << code_2xx << endl;
