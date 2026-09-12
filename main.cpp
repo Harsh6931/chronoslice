@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -60,15 +62,14 @@ int main()
             count++;
         }
     }
+    sort(latency.begin(),latency.end());
     cout << "2xx: " << code_2xx << endl;
     cout << "4xx: " << code_4xx << endl;
     cout << "5xx: " << code_5xx << endl;
     cout << "Total Bandwidth: " << total_bandwith << endl;
-    cout<<"LATENCY: ";
-    for(int i=0;i<latency.size();i++)
-    {
-        cout << latency[i] <<" ";
-    }
+    int p95_index=ceil(latency.size()*0.95);
+    cout<<"P95 index :"<<p95_index<<endl;
+    cout<<"P95 latency :"<<latency[p95_index-1]<<endl;
 
     return 0;
 }
