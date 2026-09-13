@@ -204,19 +204,11 @@ if(!leftover.empty()){
 
 if(!stats.latencies.empty()){
 
-    size_t p95_index =
-        static_cast<size_t>(ceil(stats.latencies.size() * 0.95)) - 1;
-
-    nth_element(
-        stats.latencies.begin(),
-        stats.latencies.begin() + p95_index,
-        stats.latencies.end()
-    );
-
-    cout << "P95 latency: "
-         << stats.latencies[p95_index] << endl;
-
+    size_t p95_index =static_cast<size_t>(ceil(stats.latencies.size()*0.95))-1;
+    nth_element(stats.latencies.begin(),stats.latencies.begin()+p95_index,stats.latencies.end());
+    cout<<"P95 latency: "<<stats.latencies[p95_index]<<endl;
 }
+
 else{
     cout << "No latency data available." << endl;
 }
