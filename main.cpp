@@ -28,6 +28,10 @@ struct statistics {
 };
 
 void updateStastics(const logEntry &entry, statistics &stats){
+    if(entry.status==0) return ; //igonore the bad lines
+    if(entry.bandwidth < 0 || entry.latency < 0){  // igonore line if bandwith|latency =-ve
+        return;
+    }
     if(entry.status>=200 && entry.status<300){
         stats.code_2xx++;
     }
@@ -75,17 +79,31 @@ logEntry parseLine(const string &s){
         if(token_count==8){
             // directly convert string_view to INT
             // used from_chars() as previously stoi(string(token)) first created a extra string
-            from_chars(token.data(),token.data()+token.size(),entry.status);
+            auto result = from_chars(token.data(),token.data()+token.size(),entry.status);
+            if(result.ec != std::errc{}){
+                return {};
+            }
         }
         else if(token_count==9){
-            from_chars(token.data(),token.data()+token.size(),entry.bandwidth);
+            auto result = from_chars(token.data(),token.data()+token.size(),entry.bandwidth);
+            if(result.ec != std::errc{}){
+                return {};
+            }        
         }
+
         else if(token_count==10){
-            from_chars(token.data(),token.data()+token.size(),entry.latency);
+            auto result = from_chars(token.data(),token.data()+token.size(),entry.latency);
+            if(result.ec != std::errc{}){
+                return {};
+            }        
         }
         token_count++;
 
     }
+    if(token_count < 11){
+        return {};
+    }
+
     return entry;
 }
 
