@@ -69,8 +69,7 @@ string_view nextToken(const string_view &line, size_t &pos){
 
 // using const as string line cant change
 // represent one request in log file
-logEntry parseLine(const string &s){         
-    string_view line=s;
+logEntry parseLine(string_view line){         
     size_t pos=0; // starting position for parsing
     int token_count=0;
     logEntry entry{};
@@ -140,8 +139,7 @@ while(file.read(buffer, BUFFER_SIZE) || file.gcount() > 0){
     for(size_t i = 0; i < current.size(); i++){
 
         if(current[i] == '\n'){
-
-            string line = current.substr(lineStart, i - lineStart);
+            string_view line(current.data() + lineStart, i - lineStart);
 
             logEntry entry = parseLine(line);
             updateStastics(entry, stats);
