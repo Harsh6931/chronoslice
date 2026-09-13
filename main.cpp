@@ -128,7 +128,7 @@ int main() {
 
     statistics stats;  // default initialization of statistics struct
 
-const int BUFFER_SIZE = 10;
+const int BUFFER_SIZE = 64*1024;
 char buffer[BUFFER_SIZE];
 
 string leftover = "";
@@ -202,25 +202,29 @@ if(!leftover.empty()){
     processLine(leftover, stats);
 }
 
+if(!stats.latencies.empty()){
 
-    sort(stats.latencies.begin(),stats.latencies.end());
-    
-    int p95_index=0;
+    size_t p95_index =
+        static_cast<size_t>(ceil(stats.latencies.size() * 0.95)) - 1;
 
-    if(!stats.latencies.empty()){
-        p95_index=ceil(stats.latencies.size()*0.95);
-    }
-    else{
-        cout<<"No latency data available."<<endl;
-    }
+    nth_element(
+        stats.latencies.begin(),
+        stats.latencies.begin() + p95_index,
+        stats.latencies.end()
+    );
+
+    cout << "P95 latency: "
+         << stats.latencies[p95_index] << endl;
+
+}
+else{
+    cout << "No latency data available." << endl;
+}
 
     cout << "2xx: " << stats.code_2xx << endl;
     cout << "4xx: " << stats.code_4xx << endl;
     cout << "5xx: " << stats.code_5xx << endl;
     cout << "Total Bandwidth: " << stats.total_bandwidth << endl;
-        
-    cout<<"P95 index :"<<p95_index<<endl;
-    cout<<"P95 latency :"<<stats.latencies[p95_index-1]<<endl;
 
     //ending timer & printing performace
     auto end = chrono::high_resolution_clock::now();
