@@ -19,7 +19,7 @@ string_view nextToken(string_view line, size_t& pos) {
     return token;
 }
 int main() {
-    string_view line = "hello world rest";
+    string_view line = "192.168.1.1 - - [11/Sep/2026:13:55:36 +0000] \"GET /api/v1/products HTTP/1.1\" 200 1024 15";
     size_t pos = 0;
     while (pos < line.size()) {
         string_view token = nextToken(line, pos);
