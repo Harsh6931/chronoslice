@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include<charconv>
+#include <chrono>
 
 using namespace std;
 
@@ -108,6 +109,9 @@ logEntry parseLine(const string &s){
 }
 
 int main() {
+    //starting timer
+    auto start = chrono::high_resolution_clock::now();
+    
     ifstream file("../data/access.log");
 
     if(!file){
@@ -142,5 +146,11 @@ int main() {
     cout<<"P95 index :"<<p95_index<<endl;
     cout<<"P95 latency :"<<stats.latencies[p95_index-1]<<endl;
 
+    //ending timer & printing performace
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(
+        end - start
+    );
+    cout << "Time: " << duration.count() << " ms\n";
     return 0;
 }
