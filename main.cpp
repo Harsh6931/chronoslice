@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include<charconv>
 
 using namespace std;
 
@@ -72,13 +73,15 @@ logEntry parseLine(const string &s){
         string_view token = nextToken(line,pos);
 
         if(token_count==8){
-            entry.status=stoi(string(token)); // convert string_view to string and then to int
+            // directly convert string_view to INT
+            // used from_chars() as previously stoi(string(token)) first created a extra string
+            from_chars(token.data(),token.data()+token.size(),entry.status);
         }
         else if(token_count==9){
-            entry.bandwidth=stoll(string(token));  // convert string_view to string and then to long long
+            from_chars(token.data(),token.data()+token.size(),entry.bandwidth);
         }
         else if(token_count==10){
-            entry.latency=stoi(string(token));  // convert string_view to string and then to int
+            from_chars(token.data(),token.data()+token.size(),entry.latency);
         }
         token_count++;
 
