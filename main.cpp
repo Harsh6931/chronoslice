@@ -119,7 +119,9 @@ int main() {
     //starting timer
     auto start = chrono::high_resolution_clock::now();
     
-    ifstream file("../data/access.log");
+    ifstream file("../data/access_large.log");
+
+    auto readStart = chrono::high_resolution_clock::now();
 
     if(!file){
         cout << "Failed to open log file\n";
@@ -195,6 +197,13 @@ while(file.read(buffer, BUFFER_SIZE) || file.gcount() > 0){
         );
     }
 }
+auto readEnd = chrono::high_resolution_clock::now();
+
+auto readDuration = chrono::duration_cast<chrono::milliseconds>(
+    readEnd - readStart
+);
+
+cout << "Read + parse time: "<< readDuration.count() << " ms\n";
 
 // Process final line
 if(!leftover.empty()){
