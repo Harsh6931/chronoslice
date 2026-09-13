@@ -7,6 +7,7 @@
 #include <cmath>
 #include<charconv>
 #include <chrono>
+#include <string_view>
 
 using namespace std;
 
@@ -107,6 +108,13 @@ logEntry parseLine(string_view line){
     return entry;
 }
 
+void processLine(string_view line, statistics &stats){
+
+    logEntry entry = parseLine(line);
+
+    updateStastics(entry, stats);
+}
+
 int main() {
     //starting timer
     auto start = chrono::high_resolution_clock::now();
@@ -120,7 +128,7 @@ int main() {
 
     statistics stats;  // default initialization of statistics struct
 
-const int BUFFER_SIZE = 64 * 1024;
+const int BUFFER_SIZE = 10;
 char buffer[BUFFER_SIZE];
 
 string leftover = "";
@@ -129,33 +137,71 @@ while(file.read(buffer, BUFFER_SIZE) || file.gcount() > 0){
 
     streamsize bytesRead = file.gcount();
 
-    string current = leftover;
-    current.append(buffer, bytesRead);
+    // If there is an incomplete line from the previous chunk
+    if(!leftover.empty()){
 
-    leftover.clear();
+        leftover.append(buffer, bytesRead);
+
+        size_t lineStart = 0;
+
+        for(size_t i = 0; i < leftover.size(); i++){
+
+            if(leftover[i] == '\n'){
+
+                string_view line(
+                    leftover.data() + lineStart,
+                    i - lineStart
+                );
+
+                processLine(line, stats);
+
+                lineStart = i + 1;
+            }
+        }
+
+        // Keep incomplete part
+        leftover = leftover.substr(lineStart);
+
+        // The entire current buffer has been added to leftover,
+        // so don't process buffer separately.
+        continue;
+    }
+
+    // No leftover → process buffer directly
 
     size_t lineStart = 0;
 
-    for(size_t i = 0; i < current.size(); i++){
+    for(size_t i = 0; i < bytesRead; i++){
 
-        if(current[i] == '\n'){
-            string_view line(current.data() + lineStart, i - lineStart);
+        if(buffer[i] == '\n'){
 
-            logEntry entry = parseLine(line);
-            updateStastics(entry, stats);
+            string_view line(
+                buffer + lineStart,
+                i - lineStart
+            );
+
+            processLine(line, stats);
 
             lineStart = i + 1;
         }
     }
 
-    leftover = current.substr(lineStart);
+    // Save incomplete line
+    if(lineStart < bytesRead){
+
+        leftover = string(
+            buffer + lineStart,
+            bytesRead - lineStart
+        );
+    }
 }
 
+// Process final line
 if(!leftover.empty()){
 
-    logEntry entry = parseLine(leftover);
-    updateStastics(entry, stats);
+    processLine(leftover, stats);
 }
+
 
     sort(stats.latencies.begin(),stats.latencies.end());
     
