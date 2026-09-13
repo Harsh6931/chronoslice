@@ -40,24 +40,48 @@ void updateStastics(const logEntry &entry, statistics &stats){
     stats.latencies.push_back(entry.latency);
 
 }
+
+string_view nextToken(const string_view &line, size_t &pos){
+    size_t space=line.find(' ',pos);
+
+    // Last token
+    if (space == string_view::npos) {
+        string_view token = line.substr(pos);
+        pos = line.size();
+        return token;
+    }
+    // Token before the space
+    string_view token = line.substr(pos, space - pos);
+
+    // Move position to the next token
+    pos = space + 1;
+    return token;
+}
+
+
+
+
 // using const as string line cant change
 // represent one request in log file
-logEntry parseLine(const string &line){         
-    stringstream ss(line);
-    string token;
-    int count=0;
+logEntry parseLine(const string &s){         
+    string_view line=s;
+    size_t pos=0; // starting position for parsing
+    int token_count=0;
     logEntry entry{};
-    while(ss >> token){
-        if(count==8){
-            entry.status=stoi(token);
+    while(pos<line.size()){
+        string_view token = nextToken(line,pos);
+
+        if(token_count==8){
+            entry.status=stoi(string(token)); // convert string_view to string and then to int
         }
-        else if(count==9){
-            entry.bandwidth=stoll(token);  //stoll as long long
+        else if(token_count==9){
+            entry.bandwidth=stoll(string(token));  // convert string_view to string and then to long long
         }
-        else if(count==10){
-            entry.latency=stoi(token);
+        else if(token_count==10){
+            entry.latency=stoi(string(token));  // convert string_view to string and then to int
         }
-        count++;
+        token_count++;
+
     }
     return entry;
 }
