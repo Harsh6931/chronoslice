@@ -119,13 +119,45 @@ int main() {
         return 1;
     }
 
-    string line;
     statistics stats;  // default initialization of statistics struct
 
-    while (getline(file, line)){
-        logEntry entry = parseLine(line);
-        updateStastics(entry,stats);
+const int BUFFER_SIZE = 64 * 1024;
+char buffer[BUFFER_SIZE];
+
+string leftover = "";
+
+while(file.read(buffer, BUFFER_SIZE) || file.gcount() > 0){
+
+    streamsize bytesRead = file.gcount();
+
+    string current = leftover;
+    current.append(buffer, bytesRead);
+
+    leftover.clear();
+
+    size_t lineStart = 0;
+
+    for(size_t i = 0; i < current.size(); i++){
+
+        if(current[i] == '\n'){
+
+            string line = current.substr(lineStart, i - lineStart);
+
+            logEntry entry = parseLine(line);
+            updateStastics(entry, stats);
+
+            lineStart = i + 1;
+        }
     }
+
+    leftover = current.substr(lineStart);
+}
+
+if(!leftover.empty()){
+
+    logEntry entry = parseLine(leftover);
+    updateStastics(entry, stats);
+}
 
     sort(stats.latencies.begin(),stats.latencies.end());
     
